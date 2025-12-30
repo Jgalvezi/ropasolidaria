@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container">
+    <h2 class="mb-4 text-center"><i class="bi bi-geo-alt-fill text-danger"></i> Nuestros Centros de Acopio</h2>
+    <p class="text-center text-muted mb-5">Encuentra el lugar más cercano para entregar o retirar tus prendas.</p>
+
+    <div class="row">
+
+		{% for centro in centros %}
+		<div class="card mb-4 shadow-sm">
+			<div class="card-body">
+				<div class="d-flex justify-content-between align-items-center">
+					<h3>{{ centro.nombre }}</h3>
+					{% if centro.en_vacaciones %}
+						<span class="badge bg-danger">CERRADO POR VACACIONES</span>
+					{% elif centro.esta_lleno %}
+						<span class="badge bg-warning text-dark">CAPACIDAD AL MÁXIMO</span>
+					{% else %}
+						<span class="badge bg-success">OPERATIVO / RECIBIENDO</span>
+					{% endif %}
+				</div>
+
+				<div class="mt-3">
+					<small class="text-muted">Espacio ocupado en bodega:</small>
+					<div class="progress" style="height: 10px;">
+						<div class="progress-bar {% if centro.porcentaje_ocupacion > 80 %}bg-danger{% else %}bg-info{% endif %}" 
+							 role="progressbar" 
+							 style="width: {{ centro.porcentaje_ocupacion }}%">
+						</div>
+					</div>
+					<p class="small text-end">{{ centro.prendas_actuales }} / {{ centro.capacidad_maxima }} prendas</p>
+				</div>
+				
+				</div>
+		</div>
+		{% endfor %}
+
+		{% for centro in centros %}
+		<div class="card mb-4 shadow-sm">
+			<div class="card-body">
+				<h4>{{ centro.nombre }}</h4>
+				<p><i class="bi bi-geo-alt"></i> {{ centro.direccion }}</p>
+				
+				{% if centro.google_maps_link %}
+				<div class="ratio ratio-16x9">
+					<iframe 
+						src="{{ centro.google_maps_link }}" 
+						style="border:0;" 
+						allowfullscreen="" 
+						loading="lazy">
+					</iframe>
+				</div>
+                {% else %}
+                    <div class="alert alert-light text-center border mt-3">
+                        <i class="bi bi-map"></i> Mapa no disponible por ahora.
+                    </div>
+                {% endif %}
+
+				<div class="mt-4">
+					<h5><i class="bi bi-star-fill text-warning"></i> Reseñas de la comunidad</h5>
+					<div class="list-group list-group-flush mb-3">
+						{% for resena in centro.resenas.all %}
+						<div class="list-group-item px-0">
+							<div class="d-flex justify-content-between">
+								<strong>{{ resena.usuario.username }}</strong>
+								<span class="text-warning">
+									{% for i in "12345" %}
+										{% if forloop.counter <= resena.calificacion %}★{% else %}☆{% endif %}
+									{% endfor %}
+								</span>
+							</div>
+							<p class="small text-muted mb-0">{{ resena.comentario }}</p>
+						</div>
+						{% empty %}
+						<p class="small text-muted">Aún no hay reseñas para este centro.</p>
+						{% endfor %}
+					</div>
+
+					<form action="{% url 'dejar_resena' centro.id %}" method="POST" class="bg-light p-3 rounded">
+						{% csrf_token %}
+						<div class="row g-2">
+							<div class="col-md-3">
+								<select name="calificacion" class="form-select form-select-sm" required>
+									<option value="">Nota (1-5)</option>
+									<option value="5">5 ★ (Excelente)</option>
+									<option value="4">4 ★</option>
+									<option value="3">3 ★</option>
+									<option value="2">2 ★</option>
+									<option value="1">1 ★</option>
+								</select>
+							</div>
+							<div class="col-md-7">
+								<input type="text" name="comentario" class="form-control form-select-sm" placeholder="Cuéntanos tu experiencia..." required>
+							</div>
+							<div class="col-md-2">
+								<button type="submit" class="btn btn-primary btn-sm w-100">Enviar</button>
+							</div>
+						</div>
+					</form>
+				</div>				
+				
+			</div>
+		</div>
+		{% endfor %} 
+    
+	<div class="card-footer bg-white border-0">
+		{% if centro.whatsapp %}
+		<a href="https://wa.me/{{ centro.whatsapp }}?text=Hola%20{{ centro.nombre }},%20quiero%20coordinar%20una%20entrega" 
+		   class="btn btn-outline-success w-100 rounded-pill" target="_blank">
+			<i class="bi bi-whatsapp"></i> Contactar al Centro
+		</a>
+		{% endif %}
+	</div>
+	
+	</div>
+</div>
+{% endblock %}

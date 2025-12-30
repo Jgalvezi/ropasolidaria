@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-truck text-primary"></i> Dashboard Logístico</h2>
+        <span class="badge bg-dark">Hoy: {{ hoy|date:"d/m/Y" }}</span>
+    </div>
+
+	<div class="card border-0 shadow-sm mt-4">
+		<div class="card-header bg-dark text-white">Gestión de Inventario por Centro</div>
+		<div class="table-responsive">
+			<table class="table align-middle mb-0">
+				<thead>
+					<tr>
+						<th>Centro</th>
+						<th>Estado Actual</th>
+						<th>Capacidad</th>
+						<th>Acción</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for centro in stats_centros %}
+					<tr>
+						<td>{{ centro.nombre }}</td>
+						<td>
+							{% if centro.en_vacaciones %}
+								<span class="text-danger"><i class="bi bi-calendar-x"></i> En Vacaciones</span>
+							{% else %}
+								<span class="text-success"><i class="bi bi-door-open"></i> Abierto</span>
+							{% endif %}
+						</td>
+						<td>
+							<div class="progress" style="width: 100px; height: 5px;">
+								<div class="progress-bar" style="width: {{ centro.porcentaje_ocupacion }}%"></div>
+							</div>
+						</td>
+						<td>
+							<a href="/admin/donaciones/centroacopio/{{ centro.id }}/change/" class="btn btn-sm btn-outline-primary">
+								Editar Estado
+							</a>
+						</td>
+					</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+    <div class="row g-3">
+        {% for p in prendas_hoy %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 shadow-sm border-start border-primary border-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <h5 class="card-title">{{ p.get_tipo_display }}</h5>
+                        <i class="bi bi-box-seam fs-4 text-muted"></i>
+                    </div>
+                    <p class="mb-1"><strong>Donante:</strong> {{ p.donante.username }}</p>
+                    <p class="mb-1 text-muted small"><i class="bi bi-building"></i> Destino: {{ p.centro.nombre }}</p>
+                    <hr>
+                    <div class="d-flex gap-2">
+                        <a href="https://wa.me/{{ p.donante.perfil.telefono }}" class="btn btn-sm btn-outline-success w-100">
+                            <i class="bi bi-whatsapp"></i> Contactar
+                        </a>
+                        <a href="/admin/donaciones/prenda/{{ p.id }}/change/" class="btn btn-sm btn-primary w-100">
+                            Validar
+                        </a>
+                    </div>
+                </div>				
+            </div>		
+        </div>
+		<div class="row mt-4">
+			<div class="col-md-8">
+				</div>
+			
+			<div class="col-md-4">
+				<div class="card shadow-sm border-0">
+					<div class="card-header bg-primary text-white">
+						<h5 class="mb-0"><i class="bi bi-star"></i> Popularidad de Centros</h5>
+					</div>
+					<div class="list-group list-group-flush">
+						{% for centro in stats_centros %}
+						<div class="list-group-item d-flex justify-content-between align-items-center">
+							{{ centro.nombre }}
+							<span class="badge bg-warning text-dark">
+								{{ centro.promedio_rating|default:"0"|floatformat:1 }} ★
+							</span>
+						</div>
+						{% endfor %}
+					</div>
+				</div>
+			</div>
+		</div>		
+        {% empty %}
+        <div class="text-center py-5 bg-light rounded border">
+            <i class="bi bi-calendar-check display-4 text-muted"></i>
+            <p class="mt-2">No hay recepciones programadas para hoy.</p>
+        </div>
+        {% endfor %}
+    </div>	
+</div>
+{% endblock %}

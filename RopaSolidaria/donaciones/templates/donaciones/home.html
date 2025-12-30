@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="p-5 mb-4 bg-light rounded-3 shadow-sm border">
+    <div class="container-fluid py-5 text-center">
+        <h1 class="display-4 fw-bold text-primary">¡Bienvenido a RopaSolidaria!</h1>
+        <p class="col-md-8 fs-4 mx-auto text-muted">Conecta tu closet con quienes más lo necesitan. Dona prendas, suma puntos y ayuda a crear una comunidad circular.</p>
+        <div class="d-grid gap-2 d-sm-flex justify-content-sm-center mt-4">
+            <a href="{% url 'donar' %}" class="btn btn-primary btn-lg px-4 gap-3"><i class="bi bi-plus-circle"></i> Quiero Donar</a>
+            <a href="{% url 'catalogo' %}" class="btn btn-outline-secondary btn-lg px-4"><i class="bi bi-search"></i> Ver Catálogo</a>
+        </div>
+    </div>
+</div>
+<div class="row">
+    {% for centro in centros %}
+    <div class="col-md-4">
+        <div class="card mb-4 {% if centro.en_vacaciones %}opacity-75{% endif %} shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">{{ centro.nombre }}</h5>
+                
+                {% if centro.en_vacaciones %}
+                    <div class="alert alert-danger py-1 small">
+                        <i class="bi bi-calendar-x"></i> Cerrado por vacaciones
+                    </div>
+                {% elif centro.esta_lleno %}
+                    <div class="alert alert-warning py-1 small">
+                        <i class="bi bi-exclamation-triangle"></i> Bodega llena temporalmente
+                    </div>
+                {% else %}
+                    <div class="alert alert-success py-1 small">
+                        <i class="bi bi-check-circle"></i> Recibiendo donaciones
+                    </div>
+                {% endif %}
+                
+                <p class="small text-muted mb-1">Ocupación: {{ centro.prendas_actuales }} / {{ centro.capacidad_maxima }}</p>
+                <div class="progress" style="height: 5px;">
+                    <div class="progress-bar {% if centro.esta_lleno %}bg-danger{% else %}bg-success{% endif %}" 
+                         style="width: {{ centro.porcentaje_ocupacion }}%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+<div class="row text-center mt-5">
+    <div class="col-md-6">
+        <div class="p-4 border rounded bg-white">
+            <i class="bi bi-heart-fill text-danger display-3"></i>
+            <h2 class="mt-3">{{ total_donaciones }}</h2>
+            <p class="text-muted text-uppercase fw-bold">Prendas Entregadas</p>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="p-4 border rounded bg-white">
+            <i class="bi bi-geo-alt-fill text-success display-3"></i>
+            <h2 class="mt-3">{{ centros_activos }}</h2>
+            <p class="text-muted text-uppercase fw-bold">Centros de Acopio</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

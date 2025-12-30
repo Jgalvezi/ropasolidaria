@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'buscar_usuarios' %}">Buscador</a></li>
+            <li class="breadcrumb-item active">{{ usuario_target.username }}</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card shadow-sm text-center p-4">
+                <i class="bi bi-person-circle display-1 text-primary"></i>
+                <h3 class="mt-2">{{ usuario_target.username }}</h3>
+                <p class="text-muted">{{ usuario_target.email }}</p>
+                <div class="d-flex justify-content-center gap-2">
+                    <span class="badge bg-primary">Puntos: {{ usuario_target.perfil.puntos }}</span>
+                    <span class="badge" style="background-color: {{ usuario_target.perfil.get_nivel.color }}">
+                        {{ usuario_target.perfil.get_nivel.nombre }}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <h4>Historial de Prendas</h4>
+            <div class="table-responsive bg-white shadow-sm rounded">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Tipo</th>
+                            <th>Estado</th>
+                            <th>Fecha Entrega</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for p in prendas %}
+                        <tr>
+                            <td>{{ p.get_tipo_display }}</td>
+                            <td>
+                                {% if p.validada %}
+                                    <span class="text-success"><i class="bi bi-check-circle"></i> Validada</span>
+                                {% else %}
+                                    <span class="text-warning"><i class="bi bi-clock"></i> Pendiente</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ p.fecha_entrega|date:"d/m/Y" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4"><i class="bi bi-people-fill"></i> Gestión de Donantes</h2>
+
+    <form method="GET" class="row g-3 mb-4 p-3 bg-light rounded border shadow-sm">
+        <div class="col-md-6">
+            <input type="text" name="q" class="form-control" placeholder="Buscar por usuario o email..." value="{{ query }}">
+        </div>
+        <div class="col-md-4 d-flex align-items-center">
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" name="mora" id="checkMora" {% if filtro_mora %}checked{% endif %}>
+                <label class="form-check-label" for="checkMora">Solo con entregas vencidas</label>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100"><i class="bi bi-search"></i> Filtrar</button>
+        </div>
+    </form>
+
+    <div class="row">
+        {% for u in usuarios %}
+        <div class="col-md-6 mb-3">
+            <div class="card h-100 {% if u.prendas_vencidas %}border-danger{% endif %} shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h5 class="card-title mb-0">{{ u.username }}</h5>
+                            <small class="text-muted">{{ u.email }}</small>
+                        </div>
+                        <span class="badge bg-primary">{{ u.perfil.puntos }} pts</span>
+                    </div>
+                    <hr>
+                    
+                    {% if u.prendas_vencidas %}
+                        <div class="alert alert-danger p-2 small">
+                            <strong><i class="bi bi-clock-history"></i> Entregas Vencidas:</strong>
+                            <ul class="mb-0">
+                                {% for p in u.prendas_vencidas %}
+                                    <li>{{ p.get_tipo_display }} ({{ p.fecha_entrega|date:"d/m/Y" }})</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+
+                    <div class="d-flex gap-2">
+                        <a href="https://wa.me/{{ u.perfil.telefono }}?text=Hola%20{{ u.username }},%20te%20contactamos%20de%20RopaSolidaria%20para%20reprogramar%20tu%20entrega%20pendiente." 
+                           class="btn btn-sm btn-outline-success" target="_blank">
+                            <i class="bi bi-whatsapp"></i> WhatsApp
+                        </a>
+                        <a href="mailto:{{ u.email }}?subject=Recordatorio%20Donación%20Pendiente&body=Hola%20{{ u.username }},%20tienes%20una%20entrega%20pendiente..." 
+                           class="btn btn-sm btn-outline-dark">
+                            <i class="bi bi-envelope"></i> Email
+                        </a>
+                        <a href="{% url 'perfil_usuario_admin' u.id %}" class="btn btn-sm btn-primary ms-auto">Ver Perfil</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <p class="text-muted">No se encontraron usuarios con esos criterios.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

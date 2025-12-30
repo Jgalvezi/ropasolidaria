@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h3 class="card-title mb-0">Nueva Donación</h3>
+            </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form.tipo.label_tag }} 👕
+                            {{ form.tipo }}
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            {{ form.talla.label_tag }} 📏
+                            {{ form.talla }}
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            {{ form.condicion.label_tag }}
+                            {{ form.condicion }}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.centro.label_tag }}
+                        {{ form.centro }}
+                    </div>
+
+                    <hr>
+                    <h5>Fotografías</h5>
+                    <div class="mb-3">
+                        <span class="text-danger">{{ form.foto1.label_tag }}</span>
+                        {{ form.foto1 }}
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form.foto2.label_tag }}
+                            {{ form.foto2 }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ form.foto3.label_tag }}
+                            {{ form.foto3 }}
+                        </div>
+                    </div>
+					<div class="mb-3">
+						<label class="form-label font-weight-bold"><i class="bi bi-calendar-event"></i> ¿Cuándo planeas entregarla?</label>
+						{{ form.fecha_entrega }}
+						<small class="text-muted"> <mark style="background-color: yellow;">Esto ayuda al centro de acopio a organizar la recepción.</mark></small>
+					</div>
+                    <div class="d-grid gap-2 mt-4">
+                        <button type="submit" class="btn btn-success btn-lg">
+                            Publicar Donación (+10 puntos)
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

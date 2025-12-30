@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4 text-center"><i class="bi bi-graph-up"></i> Mi Impacto y Ranking</h2>
+
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card shadow border-0">
+                <div class="card-body">
+                    <h5 class="card-title text-center">Mis Donaciones por Mes</h5>
+                    <canvas id="chartMensual"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="card shadow border-0">
+                <div class="card-body">
+                    <h5 class="card-title text-center">Top 10 Donantes (Por Centro)</h5>
+                    <canvas id="chartTop"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="card mb-4 border-0 shadow-sm bg-dark text-white">
+    <div class="card-body p-4">
+        <div class="row align-items-center">
+            <div class="col-md-2 text-center">
+                <i class="bi {{ user.perfil.get_nivel.icon }} display-1" style="color: {{ user.perfil.get_nivel.color }};"></i>
+            </div>
+            <div class="col-md-10">
+                <h3>Rango Actual: {{ user.perfil.get_nivel.nombre }}</h3>
+                <p class="mb-1">Progreso para el siguiente nivel:</p>
+                <div class="progress" style="height: 25px;">
+                    {% if user.perfil.puntos < 150 %}
+                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-warning" 
+                             role="progressbar" 
+                             style="width: {% widthratio user.perfil.puntos 150 100 %}%">
+                             {{ user.perfil.puntos }} / 150 pts
+                        </div>
+                    {% else %}
+                        <div class="progress-bar bg-success" role="progressbar" style="width: 100%">
+                            ¡NIVEL MÁXIMO ALCANZADO!
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card mb-4 border-0 shadow-sm bg-dark text-white p-4">
+    </div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <h4 class="mb-3"><i class="bi bi-patch-check"></i> Mis Logros Obtenidos</h4>
+        <div class="d-flex flex-wrap gap-3">
+            {% for logro in user.perfil.logros.all %}
+                <div class="card text-center shadow-sm" style="width: 120px; border-top: 5px solid {{ logro.color }};">
+                    <div class="card-body">
+                        <i class="bi {{ logro.icono }} display-6" style="color: {{ logro.color }};"></i>
+                        <p class="small fw-bold mb-0 mt-2">{{ logro.nombre }}</p>
+                    </div>
+                </div>
+            {% empty %}
+                <p class="text-muted italic">Aún no has obtenido logros. ¡Sigue donando para desbloquear medallas!</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    // Gráfico Mensual
+    const ctxMes = document.getElementById('chartMensual');
+    new Chart(ctxMes, {
+        type: 'line',
+        data: {
+            labels: [{% for s in stats_mensuales %}"{{ s.mes|date:'M Y' }}",{% endfor %}],
+            datasets: [{
+                label: 'Prendas Validadas',
+                data: [{% for s in stats_mensuales %}{{ s.total }},{% endfor %}],
+                borderColor: '#0d6efd',
+                tension: 0.3,
+                fill: true,
+                backgroundColor: 'rgba(13, 110, 253, 0.1)'
+            }]
+        }
+    });
+
+    // Gráfico Top 10
+    const ctxTop = document.getElementById('chartTop');
+    new Chart(ctxTop, {
+        type: 'bar',
+        data: {
+            labels: [{% for t in top_donantes %}"{{ t.donante__username }} ({{ t.centro__nombre }})",{% endfor %}],
+            datasets: [{
+                label: 'Total Donaciones',
+                data: [{% for t in top_donantes %}{{ t.total }},{% endfor %}],
+                backgroundColor: '#198754'
+            }]
+        },
+        options: { indexAxis: 'y' } // Gráfico horizontal para mejor lectura de nombres
+    });
+</script>
+{% endblock %}

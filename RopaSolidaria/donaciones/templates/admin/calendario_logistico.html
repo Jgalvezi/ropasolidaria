@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+            <h4 class="mb-0"><i class="bi bi-calendar3"></i> Agenda de Recepciones</h4>
+            <a href="{% url 'admin_dashboard' %}" class="btn btn-sm btn-outline-light">Volver al Dashboard</a>
+        </div>
+        <div class="card-body">
+            <div id='calendar'></div>
+        </div>
+    </div>
+</div>
+
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js'></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var calendarEl = document.getElementById('calendar');
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            locale: 'es',
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek'
+            },
+            events: [
+                {% for p in entregas %}
+                {
+                    title: '{{ p.donante.username }} - {{ p.get_tipo_display }}',
+                    start: '{{ p.fecha_entrega|date:"Y-m-d" }}',
+                    backgroundColor: '#0d6efd',
+                    borderColor: '#0d6efd',
+                    url: '/admin/donaciones/prenda/{{ p.id }}/change/' // Enlace directo al admin
+                },
+                {% endfor %}
+            ],
+            eventClick: function(info) {
+                if (info.event.url) {
+                    window.open(info.event.url, "_blank");
+                    info.jsEvent.preventDefault();
+                }
+            }
+        });
+        calendar.render();
+    });
+</script>
+<style>
+    #calendar { max-height: 700px; }
+    .fc-event { cursor: pointer; }
+</style>
+{% endblock %}
